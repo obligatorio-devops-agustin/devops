@@ -12,6 +12,10 @@ on:
       microservices:
         required: true
         type: string
+      branch:
+        required: false
+        type: string
+        default: "master"
 
 jobs:
   cd:
@@ -20,6 +24,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
