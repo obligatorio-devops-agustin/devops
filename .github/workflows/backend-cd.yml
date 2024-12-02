@@ -36,6 +36,6 @@ jobs:
         run: |
           for SERVICE in $(echo "${{ inputs.microservices }}" | tr ',' '\n'); do
             echo "Building and pushing image for $SERVICE"
-            docker build -t ${{ inputs.docker_username }}/$SERVICE:${{ github.sha }} obligatorio-devops-agustin/backend-services/$SERVICE
-            docker push ${{ inputs.docker_username }}/$SERVICE:${{ github.sha }}
+            docker build -t ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }} obligatorio-devops-agustin/backend-services/$SERVICE
+            docker push ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }}
           done
