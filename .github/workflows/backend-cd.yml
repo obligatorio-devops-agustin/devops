@@ -27,6 +27,20 @@ jobs:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
 
+      - name: Validate Docker Context
+        run: |
+          for SERVICE in $(echo "${{ inputs.microservices }}" | tr ',' '\n'); do
+            CONTEXT="obligatorio-devops-agustin/backend-services/$SERVICE"
+            if [ ! -d "$CONTEXT" ]; then
+              echo "Error: Directory $CONTEXT does not exist"
+              exit 1
+            fi
+            if [ ! -f "$CONTEXT/Dockerfile" ]; then
+              echo "Error: Dockerfile not found in $CONTEXT"
+              exit 1
+            fi
+          done
+    
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
