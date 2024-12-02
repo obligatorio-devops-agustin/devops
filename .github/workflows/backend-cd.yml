@@ -27,6 +27,11 @@ jobs:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
 
+      - name: List all files and directories
+        run: |
+          echo "Listing all files and directories in the workspace:"
+          ls -laR
+
       - name: Validate Docker Context
         run: |
           for SERVICE in $(echo "${{ inputs.microservices }}" | tr ',' '\n'); do
