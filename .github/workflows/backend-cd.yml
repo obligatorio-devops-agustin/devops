@@ -26,25 +26,6 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
-
-      - name: List all files and directories
-        run: |
-          echo "Listing all files and directories in the workspace:"
-          ls -laR
-
-      - name: Validate Docker Context
-        run: |
-          for SERVICE in $(echo "${{ inputs.microservices }}" | tr ',' '\n'); do
-            CONTEXT="obligatorio-devops-agustin/backend-services/$SERVICE"
-            if [ ! -d "$CONTEXT" ]; then
-              echo "Error: Directory $CONTEXT does not exist"
-              exit 1
-            fi
-            if [ ! -f "$CONTEXT/Dockerfile" ]; then
-              echo "Error: Dockerfile not found in $CONTEXT"
-              exit 1
-            fi
-          done
     
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -56,6 +37,6 @@ jobs:
         run: |
           for SERVICE in $(echo "${{ inputs.microservices }}" | tr ',' '\n'); do
             echo "Building and pushing image for $SERVICE"
-            docker build -t ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }} obligatorio-devops-agustin/backend-services/$SERVICE
+            docker build -t ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }} $SERVICE
             docker push ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }}
           done
