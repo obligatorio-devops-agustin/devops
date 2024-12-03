@@ -13,8 +13,10 @@ on:
     secrets:
       docker_username:
         required: true
+        type: string
       docker_password:
         required: true
+        type: string
 
 jobs:
   cd:
@@ -26,7 +28,7 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
           fetch-depth: 0
-    
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -36,7 +38,13 @@ jobs:
       - name: Build and Push Docker Images
         run: |
           for SERVICE in $(echo "${{ inputs.microservices }}" | tr ',' '\n'); do
-            echo "Building and pushing image for $SERVICE"
-            docker build -t ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }} $SERVICE
-            docker push ${{ secrets.docker_username }}/$SERVICE:${{ github.sha }}
+            # Generar etiqueta con la rama y el commit
+            TAG=${{ inputs.branch }}-${{ github.sha }}
+            echo "Building and pushing image for $SERVICE with tag $TAG"
+            
+            # Construir y etiquetar la imagen
+            docker build -t ${{ secrets.docker_username }}/$SERVICE:$TAG $SERVICE
+            
+            # Subir la imagen etiquetada con la rama y el commit
+            docker push ${{ secrets.docker_username }}/$SERVICE:$TAG
           done
