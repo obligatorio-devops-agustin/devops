@@ -1,0 +1,99 @@
+name: Frontend CI/CD Workflow
+
+on:
+  repository_dispatch:
+    types:
+      - trigger-frontend
+
+jobs:
+  build-and-analyze:
+    name: Build and Analyze Frontend Application
+    runs-on: ubuntu-latest
+
+    steps:
+      # Clonar el código del repo que disparó el evento
+      - name: Clone Repository A
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.client_payload.repo }}
+          ref: ${{ github.event.client_payload.branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      # Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      # Instalar dependencias
+      - name: Install Dependencies
+        run: npm install
+
+      # Construir la aplicación
+      - name: Build Frontend Application
+        run: npm run build
+
+      # Subir el build como artefacto
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: frontend-build
+          path: ./dist/apps/catalog
+
+      # Configurar SonarCloud
+      - name: Set up Java 17 for SonarCloud
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Análisis de SonarCloud
+      - name: Run SonarCloud Analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          npx sonar-scanner \
+            -Dsonar.projectKey=obligatorio-devops-agustin_frontend-application \
+            -Dsonar.sources=apps/catalog/src \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${SONAR_TOKEN}
+
+  deploy-to-s3:
+    name: Deploy Frontend to S3
+    needs: build-and-analyze
+    if: ${{ needs.build-and-analyze.result == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      # Descargar el build generado
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-build
+          path: ./dist/apps/catalog
+
+      # Configurar credenciales de AWS
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      # Sincronizar a S3 según la rama
+      - name: Sync to S3 Bucket
+        run: |
+          if [ "${{ github.event.client_payload.branch }}" == "dev" ]; then
+            BUCKET_NAME="frontend-application-dev"
+          elif [ "${{ github.event.client_payload.branch }}" == "staging" ]; then
+            BUCKET_NAME="frontend-application-staging"
+          elif [ "${{ github.event.client_payload.branch }}" == "master" ]; then
+            BUCKET_NAME="frontend-application-master"
+          else
+            echo "Branch not configured for deployment: ${{ github.event.client_payload.branch }}"
+            exit 1
+          fi
+          aws s3 sync ./dist/apps/catalog s3://$BUCKET_NAME --delete
