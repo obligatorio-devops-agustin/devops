@@ -1,0 +1,13 @@
+# Excluir directorio de datos locales
+terraform/.terraform/
+
+# Excluir archivos de registro de errores
+crash.log
+
+# Excluir configuraciones específicas del entorno
+override.tf
+override.tf.json
+
+# Excluir otros archivos temporales
+*.log
+*.bak
