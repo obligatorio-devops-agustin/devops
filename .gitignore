@@ -3,7 +3,7 @@ terraform.tfstate
 terraform.tfstate.backup
 
 # Excluir directorio de datos locales
-.terraform/
+/terraform/.terraform/
 
 # Excluir archivos de registro de errores
 crash.log
