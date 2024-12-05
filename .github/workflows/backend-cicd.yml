@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code from Repo A
+      - name: Checkout Code from Backend Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.client_payload.repo }}
@@ -62,7 +62,7 @@ jobs:
     if: ${{ needs.build-and-analyze.result == 'success' }}
 
     steps:
-      - name: Checkout Code from Repo A
+      - name: Checkout Code from Backend Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.client_payload.repo }}
