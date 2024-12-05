@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Clonar el código del repo que disparó el evento
-      - name: Clone Repository A
+      - name: Checkout Code from Frontend Repository
         uses: actions/checkout@v4
         with:
           repository: ${{ github.event.client_payload.repo }}
