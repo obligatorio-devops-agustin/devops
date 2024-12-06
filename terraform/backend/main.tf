@@ -158,6 +158,19 @@ locals {
   ecs_task_execution_role_arn = var.use_existing_iam_role ? var.existing_iam_role_arn : aws_iam_role.ecs_task_execution[0].arn
 }
 
+variable "orders_service_env" {
+  type = map(string)
+  default = {}
+}
+
+locals {
+  orders_service_env = {
+    PAYMENTS_URL = "http://${aws_lb.ecs_alb.dns_name}/payments"
+    SHIPPING_URL = "http://${aws_lb.ecs_alb.dns_name}/shipping"
+    PRODUCTS_URL = "http://${aws_lb.ecs_alb.dns_name}/products"
+  }
+}
+
 # ECS Task Definitions
 resource "aws_ecs_task_definition" "tasks" {
   count                 = length(var.services)
@@ -177,6 +190,20 @@ resource "aws_ecs_task_definition" "tasks" {
       containerPort = 8080
       protocol      = "tcp"
     } ]
+    environment = var.services[count.index] == "orders" ? [
+      {
+        name  = "PAYMENTS_URL"
+        value = local.orders_service_env.PAYMENTS_URL
+      },
+      {
+        name  = "SHIPPING_URL"
+        value = local.orders_service_env.SHIPPING_URL
+      },
+      {
+        name  = "PRODUCTS_URL"
+        value = local.orders_service_env.PRODUCTS_URL
+      }
+    ] : []
   }])
 }
 
@@ -212,7 +239,7 @@ resource "aws_lb" "ecs_alb" {
 
 resource "aws_lb_target_group" "ecs_tg" {
   count       = length(var.services)
-  name        = "${var.services[count.index]}-tg"
+  name        = "${var.services[count.index]}-${var.environment}-tg"
   port        = 8080
   protocol    = "HTTP"
   vpc_id      = aws_vpc.backend.id
