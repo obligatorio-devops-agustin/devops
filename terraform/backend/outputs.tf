@@ -1,11 +1,11 @@
 output "vpc_id" {
-  value = aws_vpc.backend.id
+  value = module.vpc.vpc_id
 }
 
 output "ecs_cluster_name" {
-  value = aws_ecs_cluster.backend_cluster.name
+  value = module.ecs.ecs_cluster_name
 }
 
 output "api_gateway_endpoint" {
-  value = aws_apigatewayv2_api.api.api_endpoint
+  value = module.api_gateway.api_gateway_endpoint
 }
