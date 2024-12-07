@@ -73,7 +73,6 @@ jobs:
           name: frontend-build
           path: ./dist/apps/catalog
 
-      # Configurar credenciales de AWS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
@@ -82,13 +81,12 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
-      # Ejecutar Terraform para crear o actualizar el bucket S3
       - name: Run Terraform to Deploy Infrastructure
         working-directory: ./terraform/frontend
         run: |
           terraform init
           terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
-          terraform apply -auto-approve
+          terraform apply -var.file=environments/${{ github.event.client_payload.branch }}.tfvars -auto-approve
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
