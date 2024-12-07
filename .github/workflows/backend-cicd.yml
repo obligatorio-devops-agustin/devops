@@ -55,20 +55,57 @@ jobs:
             cd ..
           done
 
-  deploy:
-    name: Deploy Microservices
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: backend-code
+          path: .
+          retention-days: 7
+
+  deploy-iac:
+    name: Deploy Infrastructure as Code
     needs: build-and-analyze
     runs-on: ubuntu-latest
     if: ${{ needs.build-and-analyze.result == 'success' }}
 
     steps:
-      - name: Checkout Code from Backend Repository
-        uses: actions/checkout@v4
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
         with:
-          repository: ${{ github.event.client_payload.repo }}
-          ref: ${{ github.event.client_payload.branch }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
+          name: backend-code
+          path: ./backend-repo
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Run Terraform
+        working-directory: ./backend-repo/terraform/backend
+        run: |
+          terraform init
+          terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
+          terraform apply -auto-approve \
+            -var-file=environments/${{ github.event.client_payload.branch }}.tfvars \
+            -var="github_sha=${{ github.event.client_payload.commit }}"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  deploy-images:
+    name: Deploy Microservices
+    needs: deploy-iac
+    runs-on: ubuntu-latest
+    if: ${{ needs.deploy-iac.result == 'success' }}
+
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-code
+          path: ./backend-repo
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
@@ -79,13 +116,9 @@ jobs:
       - name: Build and Push Docker Images
         run: |
           for SERVICE in $(echo "${{ github.event.client_payload.microservices }}" | tr ',' '\n'); do
-            # Generar etiqueta con la rama y el commit
             TAG=${{ github.event.client_payload.branch }}-${{ github.event.client_payload.commit }}
             echo "Building and pushing image for $SERVICE with tag $TAG"
             
-            # Construir y etiquetar la imagen
-            docker build -t ${{ secrets.DOCKER_USERNAME }}/$SERVICE:$TAG $SERVICE
-            
-            # Subir la imagen etiquetada con la rama y el commit
+            docker build -t ${{ secrets.DOCKER_USERNAME }}/$SERVICE:$TAG ./backend-repo/$SERVICE
             docker push ${{ secrets.DOCKER_USERNAME }}/$SERVICE:$TAG
           done
