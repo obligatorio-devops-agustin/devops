@@ -59,18 +59,45 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${SONAR_TOKEN}
 
-  deploy-to-s3:
-    name: Deploy Frontend to S3
+  deploy-iac:
+    name: Deploy Infrastructure as Code
     needs: build-and-analyze
-    if: ${{ needs.build-and-analyze.result == 'success' }}
     runs-on: ubuntu-latest
+    if: ${{ needs.build-and-analyze.result == 'success' }}
 
     steps:
       - name: Checkout Devops Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: us-east-1
+
+      - name: Run Terraform to Deploy Infrastructure
+        run: |
+          cd terraform/frontend
+          terraform init
+          terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
+          terraform apply -auto-approve \
+            -var-file=environments/${{ github.event.client_payload.branch }}.tfvars
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
+  deploy-to-s3:
+    name: Deploy Frontend to S3
+    needs: deploy-iac
+    if: ${{ needs.deploy-iac.result == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:      
       # Descargar el build generado
       - name: Download Build Artifact
         uses: actions/download-artifact@v3
@@ -85,18 +112,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-        
-      - name: Run Terraform to Deploy Infrastructure
-        run: |
-          cd terraform/frontend
-          terraform init
-          terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
-          terraform apply -auto-approve \
-            -var-file=environments/${{ github.event.client_payload.branch }}.tfvars
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
       # Sincronizar a S3 según la rama
       - name: Sync to S3 Bucket

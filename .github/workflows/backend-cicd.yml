@@ -60,6 +60,7 @@ jobs:
         with:
           name: backend-code
           retention-days: 7
+          path: .
 
   deploy-iac:
     name: Deploy Infrastructure as Code
@@ -72,11 +73,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: backend-code
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
