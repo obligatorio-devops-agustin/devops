@@ -87,6 +87,7 @@ jobs:
 
       - name: Run Terraform
         run: |
+          cd terraform/backend
           terraform init
           terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
           terraform apply -auto-approve \
