@@ -92,7 +92,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Run Terraform to Deploy Infrastructure
-        working-directory: ./terraform/frontend
+        working-directory: ./terraform-repo/terraform/frontend
         run: |
           terraform init
           terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
