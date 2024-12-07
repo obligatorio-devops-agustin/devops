@@ -89,6 +89,9 @@ jobs:
       - name: Run Terraform to Deploy Infrastructure
         run: |
           cd terraform/frontend
+          ls -la
+          echo "Deploying infrastructure for ${{ github.event.client_payload.branch }}"
+          cat environments/${{ github.event.client_payload.branch }}.tfvars
           terraform init
           terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
           terraform apply -var.file=environments/${{ github.event.client_payload.branch }}.tfvars -auto-approve
