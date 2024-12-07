@@ -1,5 +1,6 @@
 # Excluir directorio de datos locales
-terraform/.terraform/
+terraform/frontend/.terraform/
+terraform/backend/.terraform/
 
 # Excluir archivos de registro de errores
 crash.log
