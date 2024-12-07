@@ -82,17 +82,20 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
 
+      # Ejecutar Terraform para crear o actualizar el bucket S3
+      - name: Run Terraform to Deploy Infrastructure
+        working-directory: ./terraform/frontend
+        run: |
+          terraform init
+          terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
+          terraform apply -auto-approve
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+
       # Sincronizar a S3 según la rama
       - name: Sync to S3 Bucket
         run: |
-          if [ "${{ github.event.client_payload.branch }}" == "dev" ]; then
-            BUCKET_NAME="frontend-application-dev"
-          elif [ "${{ github.event.client_payload.branch }}" == "staging" ]; then
-            BUCKET_NAME="frontend-application-staging"
-          elif [ "${{ github.event.client_payload.branch }}" == "master" ]; then
-            BUCKET_NAME="frontend-application-master"
-          else
-            echo "Branch not configured for deployment: ${{ github.event.client_payload.branch }}"
-            exit 1
-          fi
+          BUCKET_NAME="frontend-application-${{ github.event.client_payload.branch }}"
           aws s3 sync ./dist/apps/catalog s3://$BUCKET_NAME --delete
