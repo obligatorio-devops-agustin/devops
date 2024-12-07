@@ -18,24 +18,20 @@ jobs:
           ref: ${{ github.event.client_payload.branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          path: ./frontend-repo
 
       # Configurar Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          working-directory: ./frontend-repo
           node-version: '18'
           cache: 'npm'
 
       # Instalar dependencias
       - name: Install Dependencies
-        working-directory: ./frontend-repo
         run: npm install
 
       # Construir la aplicación
       - name: Build Frontend Application
-        working-directory: ./frontend-repo
         run: npm run build
 
       # Subir el build como artefacto
@@ -43,7 +39,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frontend-build
-          path: ./frontend-repo/dist/apps/catalog
+          path: ./dist/apps/catalog
 
       # Configurar SonarCloud
       - name: Set up Java 17 for SonarCloud
@@ -54,7 +50,6 @@ jobs:
 
       # Análisis de SonarCloud
       - name: Run SonarCloud Analysis
-        working-directory: ./frontend-repo
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -75,7 +70,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          path: ./terraform-repo
           
       # Descargar el build generado
       - name: Download Build Artifact
@@ -91,9 +85,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: us-east-1
-
+      
+      - name: List Working Directory
+        run: ls -la
+        
       - name: Run Terraform to Deploy Infrastructure
-        working-directory: ./terraform-repo/terraform/frontend
         run: |
           terraform init
           terraform workspace select ${{ github.event.client_payload.branch }} || terraform workspace new ${{ github.event.client_payload.branch }}
