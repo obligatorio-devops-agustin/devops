@@ -18,6 +18,7 @@ jobs:
           ref: ${{ github.event.client_payload.branch }}
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          path: ./frontend-repo
 
       # Configurar Node.js
       - name: Set up Node.js
@@ -28,10 +29,12 @@ jobs:
 
       # Instalar dependencias
       - name: Install Dependencies
+        working-directory: ./frontend-repo
         run: npm install
 
       # Construir la aplicación
       - name: Build Frontend Application
+        working-directory: ./frontend-repo
         run: npm run build
 
       # Subir el build como artefacto
@@ -39,7 +42,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frontend-build
-          path: ./dist/apps/catalog
+          path: ./frontend-repo/dist/apps/catalog
 
       # Configurar SonarCloud
       - name: Set up Java 17 for SonarCloud
@@ -50,6 +53,7 @@ jobs:
 
       # Análisis de SonarCloud
       - name: Run SonarCloud Analysis
+        working-directory: ./frontend-repo
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
@@ -66,6 +70,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Devops Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          path: ./terraform-repo
+          
       # Descargar el build generado
       - name: Download Build Artifact
         uses: actions/download-artifact@v3
