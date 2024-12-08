@@ -51,6 +51,7 @@ jobs:
             echo "Running SonarQube analysis for $service"
             mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
               -Dsonar.projectKey=obligatorio-devops-agustin_backend-services_$service \
+              -Dsonar.branch.name=${{ github.event.client_payload.branch }} \
               -Dsonar.projectBaseDir=$(pwd)
             cd ..
           done
