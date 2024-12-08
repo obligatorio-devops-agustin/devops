@@ -55,6 +55,7 @@ jobs:
         run: |
           npx sonar-scanner \
             -Dsonar.projectKey=obligatorio-devops-agustin_frontend-application \
+            -Dsonar.branch.name=${{ github.event.client_payload.branch }} \
             -Dsonar.sources=apps/catalog/src \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${SONAR_TOKEN}
