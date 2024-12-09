@@ -35,7 +35,7 @@ Describe aquí el problema que busca resolver tu proyecto. Incluye contexto, mot
 Explica la solución planteada para abordar el problema, incluyendo las principales características y beneficios.
 
 ### Herramientas utilizadas
-Listado de herramientas y tecnologías utilizados en el proyecto:
+Listado de herramientas y tecnologías utilizadas en el proyecto:
 
 - **Herramienta de Versionado**: GitHub 
 - **Herramienta de CI/CD**: GitHub Actions 
@@ -72,7 +72,7 @@ En GitHub se definió una organización con el nombre "obligatorio-devops-agusti
 ![](./imagenes/GitHub/Secrets%20.png)
 
 ### Estrategia de ramas
-Tanto para los repositorios de microservicios como para el del frontend se decide utilizar la estrategia de ramas GitFlow. En estos repositorios se definen 4 ramas principales las cuales son master, staging y dev. De esta forma tendremos la rama master por un lado, que apunta a ser una rama estable la cual está lista para producción en cualquier momento y la rama staging en donde ocurrirá la preparación de nuevas versiones. Además, existirán ramas específicas por cada característica a desarrollar (feature branch), esto aporta flexibilidad a los desarrolladores al momento de colaborar sin interferir entre sí.
+Tanto para los repositorios de microservicios como para el del frontend se decide utilizar la estrategia de ramas GitFlow. En estos repositorios se definen tres ramas principales las cuales son master, staging y dev. De esta forma tendremos la rama master por un lado, que apunta a ser una rama estable la cual está lista para producción en cualquier momento y la rama staging en donde ocurrirá la preparación de nuevas versiones. Además, existirán ramas específicas por cada característica a desarrollar (feature branch), esto aporta flexibilidad a los desarrolladores al momento de colaborar sin interferir entre sí.
 
 ![](./imagenes/GitHub/GitFlow.png)
 
@@ -167,22 +167,27 @@ Terraform implementa un manejo del estado, mediante el cual se puede conocer el 
 A continuación, se deja evidencia de algunos de los recursos desplegados en AWS.
 
 **Cluster ECS**
+
 ![](./imagenes/AWS/ECS%20Cluster.png)
 
 **Application Load Balancer (ALB)**
+
 ![](./imagenes/AWS/ALB.png)
 
 **API GW**
+
 ![](./imagenes/AWS/API%20GW.png)
 
-Como se puede ver a continuación, tenemos 3 S3 Buckets desplegados con el nombre frontend-application-{branch}, estos buckets son los que contienen la aplicación de frontend, compilada con el contenido del último commit realizado en las ramas de dev, staging y master respectivamente.
+Como se puede ver a continuación, tenemos tres S3 Buckets desplegados con el nombre frontend-application-{branch}, estos buckets son los que contienen la aplicación de frontend, compilada con el contenido del último commit realizado en las ramas de dev, staging y master respectivamente.
 
 Además podemos ver el bucket terraform-state-agustin, en este último se almacena el estado de terraform mencionado anteriormente.
 
 **S3 Buckets**
 ![](./imagenes/AWS/Buckets%20S3.png)
 
-A continuación se dejan diagramas realizados, a grandes rasgos, sobre la infraestructura desplegada y como esta interactúa entre si. Por un lado tenemos la solución para el backend y por otro lado para el frontend respectivamente.
+A continuación, se dejan diagramas realizados a grandes rasgos, sobre la infraestructura desplegada y como esta interactúa entre si. Por un lado, tenemos la solución para el backend, y por otro lado, para el frontend respectivamente.
+
+**Aclaración**: El siguiente diagrama está simplificado para comprender la estructura y funcionamiento básico de la solución. No se incluyen en el mismo, algunos componentes fundamentales para el correcto funcionamiento de esta como lo son los target group, subredes, internet gateway y NAT gateway, aunque forman parte de la solución final.
 
 **Microservicios**
 ![](./imagenes/AWS/MS%20Diagrama.png)
