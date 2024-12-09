@@ -27,12 +27,20 @@ Tutor: Federico Barceló
 ---
 
 ## Presentación del problema
-Describe aquí el problema que busca resolver tu proyecto. Incluye contexto, motivaciones y cualquier dato relevante.
+
+La transición digital de una empresa líder en retail reveló una brecha crítica en la colaboración entre los equipos de desarrollo y operaciones, afectando el lanzamiento de una nueva aplicación clave para mejorar la experiencia del cliente. 
+
+La desconexión cultural y organizativa entre ambos equipos generó despliegues problemáticos que impactaron la estabilidad del sistema y la experiencia del usuario. Este desafío destacó la necesidad de fomentar una cultura de colaboración, comunicación efectiva y objetivos compartidos para superar las barreras existentes. La dirección ejecutiva solicitó un plan integral que no solo resuelva los problemas técnicos, sino que también impulse un cambio cultural, asegurando agilidad y resiliencia operativa a largo plazo
 
 ---
 
 ## Solución propuesta
-Explica la solución planteada para abordar el problema, incluyendo las principales características y beneficios.
+
+La solución se basa en implementar una cultura DevOps que fomente la colaboración y el trabajo conjunto entre los equipos de desarrollo y operaciones. En lugar de trabajar de forma separada, ambos equipos comparten objetivos comunes, promoviendo una comunicación fluida y una responsabilidad conjunta durante todo el ciclo de desarrollo.
+
+Este enfoque prioriza la integración continua y la entrega frecuente de valor, permitiendo identificar y resolver problemas rápidamente. Además, se busca crear un ambiente de aprendizaje constante, donde la retroalimentación y la mejora continua sean clave.
+
+Con esta metodología, la empresa no solo enfrentará los desafíos actuales, sino que también desarrollará una operación más ágil y adaptable, fortaleciendo su competitividad a largo plazo.
 
 ### Herramientas utilizadas
 Listado de herramientas y tecnologías utilizadas en el proyecto:
@@ -183,6 +191,7 @@ Como se puede ver a continuación, tenemos tres S3 Buckets desplegados con el no
 Además podemos ver el bucket terraform-state-agustin, en este último se almacena el estado de terraform mencionado anteriormente.
 
 **S3 Buckets**
+
 ![](./imagenes/AWS/Buckets%20S3.png)
 
 A continuación, se dejan diagramas realizados a grandes rasgos, sobre la infraestructura desplegada y como esta interactúa entre si. Por un lado, tenemos la solución para el backend, y por otro lado, para el frontend respectivamente.
@@ -190,9 +199,11 @@ A continuación, se dejan diagramas realizados a grandes rasgos, sobre la infrae
 **Aclaración**: El siguiente diagrama está simplificado para comprender la estructura y funcionamiento básico de la solución. No se incluyen en el mismo, algunos componentes fundamentales para el correcto funcionamiento de esta como lo son los target group, subredes, internet gateway y NAT gateway, aunque forman parte de la solución final.
 
 **Microservicios**
+
 ![](./imagenes/AWS/MS%20Diagrama.png)
 
 **Frontend**
+
 ![](./imagenes/AWS/S3%20Diagram.png)
 
 ---
@@ -218,24 +229,28 @@ Ejemplo de tests implementados para el microservicio de products:
 A continuación, se muestra evidencia sobre la ejecución de los test implementados para los microservicios:
 
 **Payments**
+
 ![](./imagenes/Evidencia%20Tests/Payments%20Test%201.png)
 
 ![](./imagenes/Evidencia%20Tests/Payments%20Test%202.png)
 
 
 **Products**
+
 ![](./imagenes/Evidencia%20Tests/Products%20Test%201.png)
 
 ![](./imagenes/Evidencia%20Tests/Products%20Test%202.png)
 
 
 **Shipping**
+
 ![](./imagenes/Evidencia%20Tests/Shipping%20Test%201.png)
 
 ![](./imagenes/Evidencia%20Tests/Shipping%20Test%202.png)
 
 
 **Orders**
+
 ![](./imagenes/Evidencia%20Tests/Orders%20Test%201.png)
 
 ![](./imagenes/Evidencia%20Tests/Orders%20Test%202.png)
