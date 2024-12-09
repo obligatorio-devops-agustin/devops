@@ -154,11 +154,15 @@ Por último, está la tarea de “Deploy Infrastructure as Code”, al igual que
 ![](./imagenes/GitHub/Backend%20CICD%20Evidence.png)
 
 ### Infraestructura como código
-Describe cómo se administra la infraestructura:
-- Tecnologías utilizadas (ejemplo: Terraform, Ansible).
-- Despliegues automatizados.
 
-Terraform implementa un manejo del estado, mediante el cual se puede conocer el estado de la infraestructura desplegada en todo momento y facilita el mantenimiento de la misma. Este mantenimiento del estado se puede hacer de manera local aunque esto no es lo ideal para trabajar en conjunto con varias personas. Es por esto que se decidió utilizar una opción mas robusta, con la cual el estado es almacenado en AWS, mediante el uso de un S3 Bucket y una tabla en DynamoDB.
+Para el manejo de la IaC se decidió utilizar terraform, debido a la robustez de la herramienta, su capacidad de integrarse con varios proveedores de nube y que fue la aprendida durante el curso. Esta tiene la capacidad de manejar distintos workspaces, en este caso decidí implementar un workspace por cada ambiente a desplegar, los mismos son dev, staging y master. Por otra parte, para el despliegue de los microservicios, decidí utilizar módulos. Debido a que el despliegue de los microservicios implica desplegar varios recursos, el separar la solución en varios módulos facilita el entendimiento de la solución, además de que ayuda en el mantenimiento y escalabilidad de esta.
+
+La estructura de archivos generada para terraform es la siguiente.
+
+![](./imagenes/Terraform/Estructura%20IaC%20.png)
+
+
+Terraform implementa un manejo del estado, mediante el cual se puede conocer el estado de la infraestructura desplegada en todo momento y facilita el mantenimiento de la misma. Este mantenimiento del estado se puede hacer de manera local aunque esto no es lo ideal para trabajar en conjunto con varias personas. Es por esto que se decidió utilizar una opción mas robusta, mediante la cual el estado es almacenado en AWS, utilizando un S3 Bucket y una tabla en DynamoDB.
 
 A continuación, se deja evidencia de algunos de los recursos desplegados en AWS.
 
@@ -171,16 +175,40 @@ A continuación, se deja evidencia de algunos de los recursos desplegados en AWS
 **API GW**
 ![](./imagenes/AWS/API%20GW.png)
 
+Como se puede ver a continuación, tenemos 3 S3 Buckets desplegados con el nombre frontend-application-{branch}, estos buckets son los que contienen la aplicación de frontend, compilada con el contenido del último commit realizado en las ramas de dev, staging y master respectivamente.
+
+Además podemos ver el bucket terraform-state-agustin, en este último se almacena el estado de terraform mencionado anteriormente.
+
 **S3 Buckets**
 ![](./imagenes/AWS/Buckets%20S3.png)
+
+A continuación se dejan diagramas realizados, a grandes rasgos, sobre la infraestructura desplegada y como esta interactúa entre si. Por un lado tenemos la solución para el backend y por otro lado para el frontend respectivamente.
+
+**Microservicios**
+![](./imagenes/AWS/MS%20Diagrama.png)
+
+**Frontend**
+![](./imagenes/AWS/S3%20Diagram.png)
 
 ---
 
 ## Test automatizados
-Describe las estrategias de testing utilizadas:
-- Unitarios.
-- Integración.
-- End-to-End (E2E).
+
+Los tests implementados en los microservicios son una buena herramienta que nos ayudan a garantizar la calidad y estabilidad del sistema. Combinando pruebas unitarias, de integración y de endpoints, logramos validar que cada componente cumpla su función y que las interacciones entre ellos se comporten según lo esperado.
+
+Las pruebas unitarias, fueron diseñadas para verificar que los métodos internos funcionen correctamente, incluso cuando hablamos de casos bordes o datos inesperados. Por otra parte, las pruebas de integración aseguran que los componentes interactúen adecuadamente entre sí y que el sistema responda de forma consistente al interactuar con los otros microservicios.
+
+Algo a destacar en las pruebas implementadas, es el uso de mocks. Utilizando la herramienta Mockito, tenemos la posibilidad de simular la respuesta de servicios externos. Esto permite recrear situaciones como pagos fallidos, falta de stock de productos o errores en los envíos, asegurando que el sistema maneje cada caso adecuadamente.
+
+Por último, con las pruebas sobre los endpoints, podemos evaluar que los endpoint respondan correctamente, utilizando MockMvc por ejemplo, para simular solicitudes reales. Estas pruebas no solo validan los códigos de respuesta, sino también el contenido de las respuestas.
+
+Combinando todo esto, los tests nos ayudan a identificar problemas no solo durante el desarrollo, sino que también durante el flujo CI/CD. La ejecución automática de los mismos, permite validar cada cambio en el código antes de ser desplegado, bloqueando el proceso en caso de encontrar cualquier problema. Esto nos ayuda a garantizar la estabilidad y funcionalidad de los servicios, incluso trabajando en un ambiente dinámico donde los despliegues son frecuentes.
+
+Ejemplo de tests implementados para el microservicio de products:
+
+![](./imagenes/Evidencia%20Tests/Products%20Logic%20Test.png)
+
+![](./imagenes/Evidencia%20Tests/Products%20Endpoint%20Test.png)
 
 A continuación, se muestra evidencia sobre la ejecución de los test implementados para los microservicios:
 
