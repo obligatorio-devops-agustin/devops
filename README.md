@@ -23,6 +23,8 @@ Tutor: Federico Barceló
     - [Infraestructura como código](#infraestructura-como-código)
   - [Test automatizados](#test-automatizados)
   - [Análisis de código](#análisis-de-código)
+    - [Resultado análisis frontend](#resultado-análisis-frontend)
+    - [Resultado análisis backend](#resultado-análisis-backend)
 
 ---
 
@@ -259,8 +261,59 @@ A continuación, se muestra evidencia sobre la ejecución de los test implementa
 ---
 
 ## Análisis de código
-Detalla las herramientas de análisis estático o dinámico utilizadas:
-- Ejemplo: SonarQube, ESLint.
-- Reglas y configuraciones aplicadas.
+
+Como herramienta para el análisis del código se decide utilizar SonarCloud, esta es crucial para garantizar la calidad del código, ya que permite identificar de manera automatizada errores, vulnerabilidades de seguridad y problemas de mantenimiento en las aplicaciones. Al integrarse en los flujos de CI/CD, asegura que el código cumpla con estándares de calidad antes de ser desplegado.
+
+Para esta solución, se crearon cinco repositorios de código en SonarCloud, uno por cada microservicio además de uno para la aplicación frontend. También se realizaron configuraciones sobre estos para asegurar que todas las ramas que se van a estar analizando (master, staging y dev) sean consideradas como "long-lived branches". SonarCloud, al entender que estas ramas son long-lived analiza todo el código de la rama y no solo el código nuevo, además ofrece métricas completas sobre el estado general de la cálidad del código en la rama, por ejemplo, cobertura, vulnerabilidades, duplicación y mantenimiento.
+
+### Resultado análisis frontend
+
+Los resultados del análisis de la aplicación frontend fueron los siguientes:
+
+![](./imagenes/SonarCloud/Sonar%20Frontend%201.png)
+
+![](./imagenes/SonarCloud/Sonar%20Frontend%202.png)
+
+Como se puede observar en las imágenes, respecto a incidentes de seguridad, la aplicación frontend no tiene ninguno lo cual es un aspecto muy positivo.
+
+Por otra parte, si miramos en detalle los problemas que se encuentran en esta, la severidad de los mismos es baja y tienen una calificación de "A" por lo que la calidad del código es muy buena. Los problemas encontrados están relacionados con el espaciado del código y propiedades que no se usan. Este tipo de problemas puede afectar tanto la confiabilidad como el mantenimiento del código, aunque al tener una severidad baja, el impacto es mínimo.
+
+Podemos observar que el proyecto tiene una calificación en "Quality Gate" de "Passed", esto singifica que, según ciertas métricas, el código está listo para desplegarse en producción.
+
+### Resultado análisis backend
+
+Los resultados del análisis de los microservicios fueron los siguientes:
+
+![](./imagenes/SonarCloud/Sonar%20Backend%201.png)
+
+Como primera observación, se puede destacar que todos los microservicios tienen una calificación en "Quality Gate" de "Passed", por lo que todos están listos para ser desplegados en producción en lo que respecta a calidad del código.
+
+También vemos que todos los microservicios tienen algún problema relacionado con la seguridad. Si bien la calificación de estos errores está entre "B" y "C", siendo "B" buena y "C" aceptable, se recomienda prestar atención a estos problemas y dedicar tiempo a resolver los mismos para tener un código libre de problemas relacionados a la seguridad del mismo.
+
+Si vamos al detalle sobre el análisis de cada servicio podemos observar lo siguiente:
+
+**Orders**
+
+![](./imagenes/SonarCloud/Sonar%20Backend%20Orders%201.png)
+
+En el caso del microservicio Orders, se encuentran problemas que afectan varias categorías. Aunque la mayoría tienen un bajo impacto en la calidad del código, se encuentra un error con severidad bloqueante y otro con severidad alta. La recomendación es atacar estos dos problemas en particular, de manera inmediata, para así poder remediarlos y lograr una solución de mayor calidad para desplegar en producción.
+
+**Payments**
+
+![](./imagenes/SonarCloud/Sonar%20Backend%20Payments%201.png)
+
+En el caso del microservicio Payments, nuevamente se encuentran distintos problemas que afectan varias categorías. La mayoría tienen bajo impacto en lo que respecta a cálidad de código, pero en particular hay dos problemas con una severidad alta que afectan tanto la confiabilidad como el mantenimiento de la solución. Resolver estos errores debería ser prioridad para el equipo.
+
+**Products**
+
+![](./imagenes/SonarCloud/Sonar%20Backend%20Products%201.png)
+
+Al igual que en el anterior, para el microservicio de products se encuentran dos problemas con severidad alta. Estos problemas tienen un alto impacto en la mantenibilidad de la solución. Nuevamente se recomienda enfocarse en estos problemas encontrados para lograr encontrar una solución para los mismos.
+
+**Shipping**
+
+![](./imagenes/SonarCloud/Sonar%20Backend%20Shipping%201.png)
+
+En el microservicio de shipping se encuentra un problema bloqueante y uno alto, los cuales afectan directamente la mantenibilidad del código. Al igual que en el caso del microservicio orders, se recomienda atacar estos dos problemas de inmediato para lograr remediarlos y desplegar el microservicio en producción sin estos.
 
 ---
